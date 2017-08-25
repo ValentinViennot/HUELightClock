@@ -140,6 +140,7 @@ unsigned long last_press,// last millis the button was pressed
 boolean auto_brightness = true;
 uint8_t brightness = 16, calc_bri;// 0 to 15
 unsigned int lum;// luminosity (sensor)
+const unsigned int LUM_DAY = 500;
 
 const char  ERR_NOTASTATE = '1',
             ERR_NOTADAY = '2';
@@ -439,24 +440,36 @@ static const uint8_t PROGMEM
   };
 void writeTime() {
   // write numbers
-  /*writeChars(
-    (myRTC.hours > 9) ? (getFirstDec(myRTC.hours) + '0') : ' ',
-    getSecDec(myRTC.hours) + '0',
-    getFirstDec(myRTC.minutes) + '0',
-    getSecDec(myRTC.minutes) + '0',
-    false
-  );*/
+  
   for(int i = 0; i < NBELEMS(m); ++i) {
     m[i].clear();
   }
-  
-  if (myRTC.hours > 9) m[0].drawBitmap(0,0,numbers[getFirstDec(myRTC.hours)],8,8,LED_ON);
-  m[1].drawBitmap(0,0,numbers[getSecDec(myRTC.hours)],8,8,LED_ON);
-  m[2].drawBitmap(0,0,numbers[getFirstDec(myRTC.minutes)],8,8,LED_ON);
-  m[3].drawBitmap(0,0,numbers[getSecDec(myRTC.minutes)],8,8,LED_ON);
 
-  m[1].drawPixel(7, 2, LED_ON);
-  m[1].drawPixel(7, 5, LED_ON);
+  if (auto_brightness && lum < LUM_DAY) {
+    writeChars(
+      (myRTC.hours > 9) ? (getFirstDec(myRTC.hours) + '0') : ' ',
+      getSecDec(myRTC.hours) + '0',
+      getFirstDec(myRTC.minutes) + '0',
+      getSecDec(myRTC.minutes) + '0',
+      false
+    );
+    m[1].drawPixel(7, 2, LED_ON);
+    m[1].drawPixel(7, 5, LED_ON);
+  } else {
+    if (myRTC.hours > 9) m[0].drawBitmap(0,0,numbers[getFirstDec(myRTC.hours)],8,8,LED_ON);
+    m[1].drawBitmap(0,0,numbers[getSecDec(myRTC.hours)],8,8,LED_ON);
+    m[2].drawBitmap(1,0,numbers[getFirstDec(myRTC.minutes)],8,8,LED_ON);
+    m[3].drawBitmap(1,0,numbers[getSecDec(myRTC.minutes)],8,8,LED_ON);
+  
+    m[1].drawPixel(7, 2, LED_ON);
+    m[1].drawPixel(7, 5, LED_ON);
+    m[1].drawPixel(7, 3, LED_ON);
+    m[1].drawPixel(7, 6, LED_ON);
+    m[2].drawPixel(0, 2, LED_ON);
+    m[2].drawPixel(0, 5, LED_ON);
+    m[2].drawPixel(0, 3, LED_ON);
+    m[2].drawPixel(0, 6, LED_ON);
+  }
   
   // write displays
   for(int i = 0; i < NBELEMS(m); ++i)
