@@ -129,7 +129,7 @@ void setup() {
 
 const long  DELAY_LONG_PRESS = 1000,//ms
             DELAY_MENU = 5000,//ms
-            DELAY_BRIGHTNESS = 2000,//ms
+            DELAY_BRIGHTNESS = 1200,//ms
             TIMEOUT_RECONNECT = 10000,//ms
             DELAY_RECONNECT = 300000;//ms
             
@@ -138,7 +138,7 @@ unsigned long last_press,// last millis the button was pressed
               last_autobrightness = -DELAY_BRIGHTNESS,
               last_reconnect;
 boolean auto_brightness = true;
-uint8_t brightness = 16;// 0 to 15
+uint8_t brightness = 16, calc_bri;// 0 to 15
 unsigned int lum;// luminosity (sensor)
 
 const char  ERR_NOTASTATE = '1',
@@ -209,8 +209,9 @@ void loop() {
  */
 void readValues() {
   btn = digitalRead(PIN_BTN);
-  lum = analogRead(PIN_LUM);
-  delay(5);
+  lum += analogRead(PIN_LUM);
+  lum /= 2;
+  delay(50);
   myRTC.updateTime();
   // check logical value of our button
   long_press = false; short_press = false;
@@ -235,9 +236,12 @@ void readValues() {
 void apply() {
   // adjust brightness
   if (auto_brightness && (millis() - last_autobrightness) >= DELAY_BRIGHTNESS) {
-    setBrightness(
-      calculateBrightness()
-    );
+    uint8_t cb = calculateBrightness();
+    // We only change brightness after two similar results (its more stable)
+    if (calc_bri == cb)
+      setBrightness(calc_bri);
+    else
+      calc_bri = cb;
     last_autobrightness = millis();
   }
 }
