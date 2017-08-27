@@ -140,7 +140,7 @@ unsigned long last_press,// last millis the button was pressed
 boolean auto_brightness = true;
 uint8_t brightness = 16, calc_bri;// 0 to 15
 unsigned int lum;// luminosity (sensor)
-const unsigned int LUM_DAY = 500;
+const unsigned int LUM_DAY = 450;
 
 const char  ERR_NOTASTATE = '1',
             ERR_NOTADAY = '2';
@@ -457,8 +457,8 @@ void writeTime() {
     m[1].drawPixel(7, 5, LED_ON);
   } else {
     if (myRTC.hours > 9) m[0].drawBitmap(0,0,numbers[getFirstDec(myRTC.hours)],8,8,LED_ON);
-    m[1].drawBitmap(0,0,numbers[getSecDec(myRTC.hours)],8,8,LED_ON);
-    m[2].drawBitmap(1,0,numbers[getFirstDec(myRTC.minutes)],8,8,LED_ON);
+    m[1].drawBitmap(-1,0,numbers[getSecDec(myRTC.hours)],8,8,LED_ON);
+    m[2].drawBitmap(2,0,numbers[getFirstDec(myRTC.minutes)],8,8,LED_ON);
     m[3].drawBitmap(1,0,numbers[getSecDec(myRTC.minutes)],8,8,LED_ON);
   
     m[1].drawPixel(7, 2, LED_ON);
@@ -494,9 +494,6 @@ void writeDate() {
 
 void writeDay() {
   switch(myRTC.dayofweek) {
-    case 0:
-      writeChars('D','I','M','.');
-      break;
     case 1:
       writeChars('L','U','N','.');
       break;
@@ -514,6 +511,10 @@ void writeDay() {
       break;
     case 6:
       writeChars('S','A','M','.');
+      break;
+    case 7:
+    case 0:
+      writeChars('D','I','M','.');
       break;
     default:
       writeError(ERR_NOTADAY);
