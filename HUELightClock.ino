@@ -140,7 +140,7 @@ unsigned long last_press,// last millis the button was pressed
 boolean auto_brightness = true;
 uint8_t brightness = 16, calc_bri;// 0 to 15
 unsigned int lum;// luminosity (sensor)
-const unsigned int LUM_DAY = 450;
+const unsigned int LUM_DAY = 400;
 
 const char  ERR_NOTASTATE = '1',
             ERR_NOTADAY = '2';
