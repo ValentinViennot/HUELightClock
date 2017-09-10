@@ -1,18 +1,19 @@
-/**
- * Emulate Philips Hue Bridge
- **/
 #include <ESP8266WiFi.h>
+#include <ESP8266Ping.h>
 #include <WiFiClient.h>
 #include <aJSON.h> // Replace avm/pgmspace.h with pgmspace.h there and set #define PRINT_BUFFER_LEN 4096 ################# IMPORTANT
+
 #include "params.h"
 #include "secrets.h"
+
 #include <LightService.h>
 
-// librairies
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_LEDBackpack.h>
 #include <virtuabotixRTC.h>
+
+const IPAddress GOOGLE_IP(8, 8, 8, 8);
 
 #define NBELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 
@@ -147,11 +148,15 @@ const char  ERR_NOTASTATE = '1',
 
 //String utc_time = "";
 
-void loop() {
+void loop() {  
   if ((WiFi.status() == WL_CONNECTED))
     LightService.update();
-  else if (millis() - last_reconnect > DELAY_RECONNECT)
-    setState(STATE_CONNECT);
+
+  if (millis() - last_reconnect > DELAY_RECONNECT)
+    if (Ping.ping(GOOGLE_IP))
+      last_reconnect = millis();
+    else
+      setState(STATE_CONNECT);
     
   readValues();
 
@@ -160,8 +165,6 @@ void loop() {
       writeTime();
       if (short_press) myLight.nextLed();
       else if (long_press) setState(STATE_MENU_DATE);
-      // TODO
-      // If not connected to Wifi : try to connect (not each time)
       break;
     case STATE_MENU_DATE:
       writeDate();
